@@ -100,8 +100,30 @@ def Proof.cutFree : Proof s → Bool
 /-! ## Admissible structural rules (Negri §3.2) -/
 
 /-- Left weakening is admissible. -/
-def Proof.weakL (p : Proof (Γ ⊢ Δ)) : Proof ((A ::ₘ Γ) ⊢ Δ) := by
-  sorry
+def Proof.weakL : Proof (Γ ⊢ Δ) → Proof ((A ::ₘ Γ) ⊢ Δ)
+  | @ax _ p Γ' Δ' =>
+      Multiset.cons_swap A (Proposition.atom p) Γ' ▸ @ax _ p (A ::ₘ Γ') Δ'
+  | @botL _ Γ' Δ' =>
+      Multiset.cons_swap A (⊥ : Proposition _) Γ' ▸ @botL _ (A ::ₘ Γ') Δ'
+  | @andL _ A' B' Γ' Δ' h =>
+      let step1 : Proof ((A' ::ₘ A ::ₘ B' ::ₘ Γ') ⊢ Δ') :=
+          Multiset.cons_swap A' A (B' ::ₘ Γ') ▸ h.weakL
+      let step2 : Proof ((A' ::ₘ B' ::ₘ A ::ₘ Γ') ⊢ Δ') :=
+          congrArg (A' ::ₘ ·) (Multiset.cons_swap B' A Γ') ▸ step1
+      Multiset.cons_swap A (A' ∧ B') Γ' ▸ andL step2
+  | andR h1 h2 => andR h1.weakL h2.weakL
+  | @orL _ A' Γ' Δ' B' h1 h2 =>
+      Multiset.cons_swap A (A' ∨ B') Γ' ▸
+        orL (Multiset.cons_swap A' A Γ' ▸ h1.weakL)
+            (Multiset.cons_swap B' A Γ' ▸ h2.weakL)
+  | orR h => orR h.weakL
+  | @implL _ Γ' A' Δ' B' h1 h2 =>
+      Multiset.cons_swap A (A' → B') Γ' ▸
+        implL h1.weakL (Multiset.cons_swap B' A Γ' ▸ h2.weakL)
+  | @implR _ A' Γ' B' Δ' h =>
+      implR (Multiset.cons_swap A' A Γ' ▸ h.weakL)
+  | @cut _ Γ' C Δ' h1 h2 =>
+      cut h1.weakL (Multiset.cons_swap C A Γ' ▸ h2.weakL)
 
 /-- Right weakening is admissible. -/
 def Proof.weakR (p : Proof (Γ ⊢ Δ)) : Proof (Γ ⊢ (A ::ₘ Δ)) := by
