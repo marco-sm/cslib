@@ -126,8 +126,29 @@ def Proof.weakL : Proof (Γ ⊢ Δ) → Proof ((A ::ₘ Γ) ⊢ Δ)
       cut h1.weakL (Multiset.cons_swap C A Γ' ▸ h2.weakL)
 
 /-- Right weakening is admissible. -/
-def Proof.weakR (p : Proof (Γ ⊢ Δ)) : Proof (Γ ⊢ (A ::ₘ Δ)) := by
-  sorry
+def Proof.weakR : Proof (Γ ⊢ Δ) → Proof (Γ ⊢ (A ::ₘ Δ))
+  | @ax _ p Γ' Δ' =>
+      Multiset.cons_swap A (Proposition.atom p) Δ' ▸ @ax _ p Γ' (A ::ₘ Δ')
+  | botL => botL
+  | andL h => andL h.weakR
+  | @andR _ Γ' A' Δ' B' h1 h2 =>
+      let s1 : Proof (Γ' ⊢ (A' ::ₘ A ::ₘ Δ')) := Multiset.cons_swap A' A Δ' ▸ h1.weakR
+      let s2 : Proof (Γ' ⊢ (B' ::ₘ A ::ₘ Δ')) := Multiset.cons_swap B' A Δ' ▸ h2.weakR
+      Multiset.cons_swap A (A' ∧ B') Δ' ▸ andR s1 s2
+  | orL h1 h2 => orL h1.weakR h2.weakR
+  | @orR _ Γ' A' B' Δ' h =>
+      let step1 : Proof (Γ' ⊢ (A' ::ₘ A ::ₘ B' ::ₘ Δ')) :=
+          Multiset.cons_swap A' A (B' ::ₘ Δ') ▸ h.weakR
+      let step2 : Proof (Γ' ⊢ (A' ::ₘ B' ::ₘ A ::ₘ Δ')) :=
+          congrArg (A' ::ₘ ·) (Multiset.cons_swap B' A Δ') ▸ step1
+      Multiset.cons_swap A (A' ∨ B') Δ' ▸ orR step2
+  | @implL _ Γ' A' Δ' B' h1 h2 =>
+      implL (Multiset.cons_swap A' A Δ' ▸ h1.weakR) h2.weakR
+  | @implR _ A' Γ' B' Δ' h =>
+      Multiset.cons_swap A (A' → B') Δ' ▸
+        implR (Multiset.cons_swap B' A Δ' ▸ h.weakR)
+  | @cut _ Γ' C Δ' h1 h2 =>
+      cut (Multiset.cons_swap C A Δ' ▸ h1.weakR) h2.weakR
 
 /-- Left contraction is admissible. -/
 def Proof.contractL (p : Proof ((A ::ₘ A ::ₘ Γ) ⊢ Δ)) : Proof ((A ::ₘ Γ) ⊢ Δ) := by
