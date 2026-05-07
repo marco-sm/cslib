@@ -170,8 +170,53 @@ def Proof.negR (p : Proof ((A ::ₘ Γ) ⊢ Δ)) : Proof (Γ ⊢ (Proposition.ne
 
 /-! ## Cut elimination (Negri §3.3) -/
 
-/-- Cut elimination: every proof can be transformed into a cut-free proof of the same sequent. -/
+open Proposition in
+/-- A single step of cut reduction (Negri §3.3, Van Dalen §7.2).
+Key cases arise when the cut formula is principal in both premises.
+Reduction cases push the cut upward past a non-principal rule. -/
+inductive Proof.CutReduces : Proof s → Proof s → Prop where
+  /-- Key case: cut on atom p with axiom on the left. -/
+  | keyAx {p : Atom} {Γ' Δ' : Multiset (Proposition Atom)}
+      (h : Proof ((atom p ::ₘ atom p ::ₘ Γ') ⊢ Δ')) :
+      CutReduces (cut ax h) h.contractL
+  /-- Key case: cut on A ∧ B with andR on the left and andL on the right. -/
+  | keyAnd {Γ Δ : Multiset (Proposition Atom)} {A B : Proposition Atom}
+      (h1 : Proof (Γ ⊢ (A ::ₘ Δ)))
+      (h2 : Proof (Γ ⊢ (B ::ₘ Δ)))
+      (d  : Proof ((A ::ₘ B ::ₘ Γ) ⊢ Δ)) :
+      CutReduces (cut (andR h1 h2) (andL d))
+                 (cut h1 (cut h2.weakL (Multiset.cons_swap B A Γ ▸ d)))
+  /-- Key case: cut on A ∨ B with orR on the left and orL on the right. -/
+  | keyOr {Γ Δ : Multiset (Proposition Atom)} {A B : Proposition Atom}
+      (h  : Proof (Γ ⊢ (A ::ₘ B ::ₘ Δ)))
+      (d1 : Proof ((A ::ₘ Γ) ⊢ Δ))
+      (d2 : Proof ((B ::ₘ Γ) ⊢ Δ)) :
+      CutReduces (cut (orR h) (orL d1 d2))
+                 (cut (cut h d1.weakR) d2)
+  /-- Key case: cut on A → B with implR on the left and implL on the right. -/
+  | keyImpl {Γ Δ : Multiset (Proposition Atom)} {A B : Proposition Atom}
+      (h1 : Proof ((A ::ₘ Γ) ⊢ (B ::ₘ Δ)))
+      (d1 : Proof (Γ ⊢ (A ::ₘ Δ)))
+      (d2 : Proof ((B ::ₘ Γ) ⊢ Δ)) :
+      CutReduces (cut (implR h1) (implL d1 d2))
+                 (cut d1 (cut h1 (Multiset.cons_swap A B Γ ▸ d2.weakL)))
+  /-- Reduction in the left premise of a cut. -/
+  | reduceL {Γ Δ : Multiset (Proposition Atom)} {A : Proposition Atom}
+      {p q : Proof (Γ ⊢ (A ::ₘ Δ))} (h : Proof ((A ::ₘ Γ) ⊢ Δ)) :
+      CutReduces p q → CutReduces (cut p h) (cut q h)
+  /-- Reduction in the right premise of a cut. -/
+  | reduceR {Γ Δ : Multiset (Proposition Atom)} {A : Proposition Atom}
+      (h : Proof (Γ ⊢ (A ::ₘ Δ))) {p q : Proof ((A ::ₘ Γ) ⊢ Δ)} :
+      CutReduces p q → CutReduces (cut h p) (cut h q)
+
+/-- Cut elimination: every proof can be transformed into a cut-free proof (Negri §3.3). -/
 def Proof.cutElim (p : Proof s) : {q : Proof s // q.cutFree} := by
+  sorry
+
+/-- Weak normalization: every LK proof reduces to a cut-free proof
+(Van Dalen §7.2.7). Not strongly normalizing for classical logic. -/
+theorem Proof.weakNorm (p : Proof s) :
+    ∃ q, Relation.ReflTransGen Proof.CutReduces p q ∧ q.cutFree := by
   sorry
 
 end Cslib.Logic.LK
