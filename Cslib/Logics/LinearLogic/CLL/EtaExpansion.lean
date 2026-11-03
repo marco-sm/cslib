@@ -74,7 +74,7 @@ def Proposition.expand (a : Proposition Atom) : ⇓({a, a⫠} : Sequent Atom):=
     |> Proof.rwConclusion (by grind)
 termination_by a
 decreasing_by
-  all_goals simp <;> grind
+  all_goals grind
 
 /-- A `Proof` has only atomic axioms if all its instances of the axiom treat atomic propositions. -/
 @[scoped grind =]
@@ -109,11 +109,8 @@ private lemma Proof.expand_onlyAtomicAxioms_dual {a : Proposition Atom} :
   induction a with
   | one => simp +contextual [dual, expand, onlyAtomicAxioms]
   | bot =>
-    intro h
-    rw [←h]
-    congr 1
-    · grind
-    · simp [dual, expand, rwConclusion, Logic.InferenceSystem.rwConclusion]
+    #adaptation_note /-- see https://github.com/leanprover/lean4/pull/13484/ -/
+    grind [expand, dual.eq_def]
   | _ => grind [Proposition.expand, Proposition.dual_inj]
 
 open Proposition Proof in

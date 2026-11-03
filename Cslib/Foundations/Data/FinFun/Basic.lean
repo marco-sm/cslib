@@ -37,7 +37,7 @@ attribute [scoped grind _=_] FinFun.mem_support_fn
 namespace FinFun
 
 @[inherit_doc]
-scoped infixr:25 " →₀ " => FinFun
+scoped infixr:25 (priority := high) " →₀ " => FinFun
 
 /-- Constructs a `FinFun` by restricting a function to a given support, filtering out all elements
 not mapped to 0 in the support. -/
@@ -53,7 +53,7 @@ scoped notation f:25 "↾₀" support:51 => FinFun.fromFun f support
 
 instance instFunLike [Zero β] : FunLike (α →₀ β) α β where
   coe f := f.fn
-  coe_injective' := by
+  coe_injective := by
     rintro ⟨_, _⟩ ⟨_, _⟩
     simp_all [Finset.ext_iff]
 

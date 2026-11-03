@@ -6,9 +6,8 @@ Authors: David Wegmann
 
 module
 
-public import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
+public import Cslib.Foundations.Relation.Termination
 public import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
-public import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
 
 /-! Strong normalization (termination) for full beta-reduction of untyped lambda calculus. -/
 
@@ -36,6 +35,7 @@ lemma sn_step (t_st_t' : t ⭢βᶠ t') (sn_t : SN FullBeta t) : SN FullBeta t' 
 lemma sn_steps (t_st_t' : t ↠βᶠ t') (sn_t : SN FullBeta t) : SN FullBeta t' :=
   sn_t.of_rel_reflTransGen t_st_t'
 
+set_option linter.tacticAnalysis.verifyGrindOnly false in
 /-- Free variables are strongly normalizing. -/
 lemma sn_fvar {x : Var} : SN FullBeta (fvar x) := by
   rw [SN_iff_SN_of_rel]
@@ -54,8 +54,7 @@ lemma sn_app (t s : Term Var) (sn_t : SN FullBeta t) (sn_s : SN FullBeta s)
       intro u hstep
       cases hstep with
       | base h => cases h; grind
-      | appL _ h_s_red => apply ih_s _ h_s_red
-                          grind [Relation.ReflTransGen.head]
+      | appL _ h_s_red => grind [Relation.ReflTransGen.head]
       | appR _ h_t_red => apply ih_t _ h_t_red _ (SN.intro hs)
                           grind [Relation.ReflTransGen.head]
 
@@ -92,10 +91,11 @@ lemma neutral_step (Hneut : Neutral t) (Hstep : t ⭢βᶠ t') : Neutral t' := b
 lemma neutral_steps (Hneut : Neutral t) (Hsteps : t ↠βᶠ t') : Neutral t' := by
   induction Hsteps <;> grind [neutral_step]
 
+set_option linter.tacticAnalysis.verifyGrindOnly false in
 /-- Neutral terms are strongly normalizing. -/
 lemma sn_neutral (Hneut : Neutral t) : SN FullBeta t := by
   induction Hneut with
-  | app => grind [→ neutral_steps, sn_app]
+  | app => grind only [→ neutral_steps, sn_app]
   | _ =>
     rw [SN_iff_SN_of_rel]
     grind only [cases Xi]
@@ -121,20 +121,23 @@ lemma sn_abs_app_multiApp [DecidableEq Var] [HasFresh Var] {Ps} {M N : Term Var}
     (sn_N : SN FullBeta N) (sn_MNPs : SN FullBeta (multiApp (M ^ N) Ps))
     (lc_N : LC N) (lc_MNPs : LC (multiApp (M ^ N) Ps)) :
     SN FullBeta (multiApp (M.abs.app N) Ps) := by
-  induction Ps with
+  induction Ps using List.reverseRecOn with
   | nil =>
     apply sn_app
     · grind [sn_abs]
     · exact sn_N
     · grind [→ steps_open_cong_abs, open_abs_lc, sn_steps]
-  | cons P Ps ih =>
+  | append_singleton Ps P ih =>
+    rw [multiApp_tail]
     apply sn_app
-    · cases lc_MNPs with grind [sn_app_left]
-    · grind [sn_app_right]
+    · rw [multiApp_tail] at sn_MNPs lc_MNPs
+      cases lc_MNPs
+      grind [sn_app_left]
+    · grind [multiApp_tail, sn_app_right]
     · intro Q' P' hstep1 hstep2
       have ⟨M', N', Ps', h_M_red, h_N_red, h_Ps_red, h_cases⟩ := invert_abs_multiApp_mst hstep1
       rcases h_cases with h_P | ⟨h_st1, h_st2⟩
-      · cases Ps' with grind
+      · induction Ps' using List.reverseRecOn with grind [multiApp_tail]
       · have innerSteps : (M ^ N).multiApp Ps ↠βᶠ (M' ^ N').multiApp Ps' := by
           trans
           · exact steps_multiApp_r h_Ps_red (by grind)
@@ -142,15 +145,15 @@ lemma sn_abs_app_multiApp [DecidableEq Var] [HasFresh Var] {Ps} {M N : Term Var}
             · apply steps_open_cong_abs M M' N N' <;> grind [open_abs_lc]
             · grind [multiApp_steps_lc]
         refine sn_steps ?_ sn_MNPs
+        rw [multiApp_tail]
         · calc ((M ^ N).multiApp Ps).app P
             _ ↠βᶠ ((M ^ N).multiApp Ps).app P' := by grind
             _ ↠βᶠ Q'.abs.app P' := redex_app_l_cong (.trans innerSteps h_st2) (by grind)
             _ ↠βᶠ Q' ^ P' := by
               rw [Relation.reflTransGen_iff_eq_or_transGen] at ⊢ innerSteps h_st2
               right
-              cases lc_MNPs
               refine Relation.TransGen.single (Xi.base (Beta.beta ?_ ?_))
-              all_goals grind only [→ step_lc_r]
+              all_goals grind
 
 end LambdaCalculus.LocallyNameless.Untyped.Term
 

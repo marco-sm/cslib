@@ -18,16 +18,17 @@ weak.linter.unicodeLinter = false
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "6cf3ab1c11e19e328c2e535bdd32d66dc7842fb5"
+rev = "079459b14868f2c41fe80848321a4f152c8739b3"
 
 [[lean_lib]]
 name = "Cslib"
-globs = ["Cslib.*"]
 
 [[lean_lib]]
 name = "CslibTests"
-globs = ["CslibTests.+"]
-moreLeanArgs = ["-Dweak.linter.style.header=false"]
+leanOptions = {weak.linter.style.header = false}
+# The test files do not use the module system, but they import Mathlib, whose package sets
+# `requiresModuleSystem`.
+allowNonModules = true
 
 [[lean_exe]]
 name = "checkInitImports"

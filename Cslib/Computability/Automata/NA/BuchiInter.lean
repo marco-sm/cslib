@@ -69,8 +69,7 @@ lemma inter_freq_acc_freq_acc {xs : ωSequence Symbol} {ss : ωSequence ((Π i, 
   have (k : ℕ) := (h_run.trans k).right
   apply frequently_leadsTo_frequently h_inf
   apply leadsTo_trans (q := {s | s.snd = !i})
-  · apply step_leadsTo
-    grind
+  · grind
   · apply until_frequently_not_leadsTo
     · grind
     · apply Frequently.mono h_inf
@@ -93,6 +92,7 @@ lemma inter_freq_comp_acc_freq_acc {xs : ωSequence Symbol} {ss : ωSequence ((�
   apply leadsTo_cases_or (q := {⟨_, b⟩ | b = false}) <;>
   grind [until_frequently_leadsTo_and, univ_inter]
 
+set_option linter.tacticAnalysis.verifyGrindOnly false in
 /-- The language accepted by the intersection automaton is the intersection of
 the languages accepted by the two component automata. -/
 @[simp, scoped grind =]
@@ -122,7 +122,8 @@ theorem inter_language_eq :
   · intro h
     choose ss_i h_ss_i using h
     let ss_p : ωSequence (Π i, State i) := fun k i ↦ ss_i i k
-    have h_ss_p : (iProd na).Run xs ss_p := by grind [Run]
+    have h_ss_p : (iProd na).Run xs ss_p := by
+      grind only [Run, = iProd_run_iff, = get_fun, = LTS.OmegaExecution, = get_map]
     have (k : ℕ) (i : Bool) : ss_p k i = ss_i i k := rfl
     obtain ⟨ss, h_run, _⟩ := hist_run_exists h_ss_p
     use ss, h_run

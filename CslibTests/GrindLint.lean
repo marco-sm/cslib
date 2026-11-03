@@ -33,14 +33,15 @@ open_scoped_all Cslib
 #grind_lint skip Cslib.FinFun.fromFun_eq
 #grind_lint skip Cslib.FinFun.fromFun_idem
 #grind_lint skip Cslib.FinFun.fromFun_inter
-#grind_lint skip Cslib.LTS.deterministic_not_lto
-#grind_lint skip Cslib.LTS.deterministic_tr_image_singleton
-#grind_lint skip Cslib.LTS.Execution.refl
+#grind_lint skip Cslib.LTS.DeterministicStateLabel.not_tr_of_ne
+#grind_lint skip Cslib.LTS.DeterministicStateLabel.image_singleton_iff_tr
+#grind_lint skip Cslib.LTS.Execution.trans
 #grind_lint skip Cslib.LTS.mem_saturate_image_τ
 #grind_lint skip Cslib.ωSequence.drop_const
 #grind_lint skip Cslib.ωSequence.get_cons_append_zero
 #grind_lint skip Cslib.ωSequence.map_id
 #grind_lint skip Cslib.Automata.DA.buchi_eq_finAcc_omegaLim
+#grind_lint skip Cslib.LTS.mapLabel_tr
 #grind_lint skip Cslib.LTS.MTr.stepL
 #grind_lint skip Cslib.LTS.STr.trans_τ
 #grind_lint skip Cslib.Automata.DA.FinAcc.toNAFinAcc_language_eq
@@ -66,22 +67,21 @@ open_scoped_all Cslib
 #grind_lint skip Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.ListFullBeta.step
 #grind_lint skip Cslib.LambdaCalculus.LocallyNameless.Fsub.Env.Wf.sub
 #grind_lint skip Cslib.LambdaCalculus.LocallyNameless.Fsub.Env.Wf.ty
-#grind_lint skip Cslib.Logic.HML.bisimulation_satisfies
-#grind_lint skip Cslib.Logic.HML.Satisfies.diamond
+#grind_lint skip Cslib.Logic.Modal.Satisfies.iff_iff_iff
+#grind_lint skip Cslib.Logic.Modal.Satisfies.triangle_of_diagonal
 #grind_lint skip Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.step_multiApp_l
 #adaptation_note
 /-- (changes from lean#13166) -/
 #grind_lint skip Cslib.ωLanguage.map_id
 #grind_lint skip Cslib.LTS.Bisimilarity.gfp
-#grind_lint skip Cslib.LTS.Bisimilarity.is_bisimulation
-#grind_lint skip Cslib.LTS.Bisimilarity.largest_bisimulation
+#grind_lint skip Cslib.LTS.Bisimilarity.isBisimulation
+#grind_lint skip Cslib.LTS.IsBisimulation.le_bisimilarity
 #grind_lint skip Cslib.LTS.IsBisimulation.bot
 #grind_lint skip Cslib.LTS.IsBisimulation.comp
 #grind_lint skip Cslib.LTS.IsBisimulation.inv
 #grind_lint skip Cslib.LTS.IsBisimulation.sup
 #grind_lint skip Cslib.LTS.IsBisimulation.traceEq
-#grind_lint skip Cslib.LTS.IsBisimulationUpTo.is_bisimulation
-#grind_lint skip Cslib.Logic.HML.theoryEq_isBisimulation
+#grind_lint skip Cslib.LTS.IsBisimulationUpTo.isBisimulation
 
 #guard_msgs in
 #grind_lint check (min := 20) in Cslib

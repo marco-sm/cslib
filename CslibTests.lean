@@ -1,15 +1,40 @@
-module  -- shake: keep-all
-
-public import CslibTests.Bisimulation
-public import CslibTests.CCS
-public import CslibTests.CLL
-public import CslibTests.DFA
-public import CslibTests.FreeMonad
-public import CslibTests.GrindLint
-public import CslibTests.HML
-public import CslibTests.HasFresh
-public import CslibTests.ImportWithMathlib
-public import CslibTests.LTS
-public import CslibTests.LambdaCalculus
-public import CslibTests.MLL
-public import CslibTests.Reduction
+import CslibTests.BTL
+import CslibTests.Bisimulation
+import CslibTests.BooleanCircuits
+import CslibTests.CCS
+import CslibTests.CCS.VendingMachine
+import CslibTests.CLL
+import CslibTests.CircuitComplexity
+import CslibTests.CircuitComposition
+import CslibTests.CircuitCounting
+import CslibTests.Circuits
+import CslibTests.Commitment
+import CslibTests.Complexity.Combinators
+import CslibTests.Congruence
+import CslibTests.DFA
+import CslibTests.DiffieHellman
+import CslibTests.FreeMonad
+import CslibTests.GrindLint
+import CslibTests.HML
+import CslibTests.HasFresh
+import CslibTests.HasSubstitution
+import CslibTests.HasWellFormed
+import CslibTests.ImportWithMathlib
+import CslibTests.InferenceSystem
+import CslibTests.LTS
+import CslibTests.LambdaCalculus
+import CslibTests.MLL
+import CslibTests.Modal
+import CslibTests.Modal.Ideal
+import CslibTests.Modal.Stlc
+import CslibTests.Modal.UnimodalCube
+import CslibTests.MultiTapeComplexity
+import CslibTests.PACLearning
+import CslibTests.PFunctor
+import CslibTests.PFunctorFree
+import CslibTests.PRG
+import CslibTests.Query
+import CslibTests.QueryComplexity
+import CslibTests.Reduction
+import CslibTests.StatefulProcesses
+import CslibTests.Synthesis

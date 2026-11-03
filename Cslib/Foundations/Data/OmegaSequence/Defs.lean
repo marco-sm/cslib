@@ -7,7 +7,7 @@ Authors: Ching-Tsun Chou, Fabrizio Montesi
 module
 
 public import Cslib.Init
-public import Mathlib.Data.FunLike.Basic
+public import Mathlib.Basic.FunLike.Basic
 public import Mathlib.Logic.Function.Iterate
 
 /-!
@@ -35,9 +35,10 @@ structure ωSequence (α : Type u) where
   /-- The function that defines this infinite sequence. -/
   get : ℕ → α
 
+set_option linter.tacticAnalysis.verifyGrindOnly false in
 instance : FunLike (ωSequence α) ℕ α where
   coe := ωSequence.get
-  coe_injective' := by grind [ωSequence, Function.Injective]
+  coe_injective := by grind only [ωSequence, Function.Injective]
 
 instance : Coe (ℕ → α) (ωSequence α) where
   coe f := ⟨f⟩
